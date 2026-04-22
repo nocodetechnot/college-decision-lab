@@ -662,14 +662,14 @@ export default function CollegeDecisionWebApp() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#f8fafc',
-        padding: 24,
-        fontFamily: 'Arial, Helvetica, sans-serif',
-      }}
-    >
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#f8fafc",
+          padding: "16px",
+          fontFamily: "Arial, Helvetica, sans-serif",
+        }}
+      >
       <div
         style={{ maxWidth: 1320, margin: '0 auto', display: 'grid', gap: 24 }}
       >
@@ -677,9 +677,9 @@ export default function CollegeDecisionWebApp() {
           style={{
             display: 'grid',
             gap: 24,
-            gridTemplateColumns: 'minmax(0, 1.25fr) minmax(320px, 0.75fr)',
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
           }}
-        >
+         >
           <SectionCard
             title="College Decision Lab"
             subtitle="A weighted decision tool with transparent math, teaching prompts, and PDF export."
@@ -699,7 +699,7 @@ export default function CollegeDecisionWebApp() {
               style={{
                 display: 'grid',
                 gap: 16,
-                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
               }}
             >
               <div>
@@ -815,7 +815,7 @@ export default function CollegeDecisionWebApp() {
             style={{
               display: 'grid',
               gap: 24,
-              gridTemplateColumns: 'minmax(0, 1.2fr) minmax(260px, 0.8fr)',
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
             }}
           >
             <div style={{ display: 'grid', gap: 16 }}>
@@ -1121,10 +1121,16 @@ export default function CollegeDecisionWebApp() {
           style={{
             display: 'grid',
             gap: 24,
-            gridTemplateColumns: 'minmax(320px, 0.9fr) minmax(0, 1.1fr)',
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
           }}
         >
-          <div style={{ display: 'grid', gap: 24 }}>
+          <div 
+            style={{ 
+              display: 'grid', 
+              gap: 24, 
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", 
+            }}
+          >
             <SectionCard
               title="Ranked Results"
               subtitle="The numbers below reflect the current weights and current scores."
@@ -1233,7 +1239,13 @@ export default function CollegeDecisionWebApp() {
             </SectionCard>
           </div>
 
-          <div style={{ display: 'grid', gap: 24 }}>
+          <div 
+            style={{ 
+              display: 'grid', 
+              gap: 24,
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            }}
+          >
             <SectionCard title="Overall Score Chart">
               <div style={{ width: '100%', height: 360 }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -1284,7 +1296,11 @@ export default function CollegeDecisionWebApp() {
         </div>
 
         <div
-          style={{ display: 'grid', gap: 24, gridTemplateColumns: '1fr 1fr' }}
+          style={{ 
+            display: 'grid', 
+            gap: 24, 
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          }}
         >
           <SectionCard
             title="Report Notes"
