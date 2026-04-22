@@ -14,7 +14,7 @@ export const metadata = {
     siteName: 'College Decision Lab',
     images: [
       {
-        url: 'https://mysuperduperdomain.com', // Path to a preview image in your /public folder
+        url: 'https://gidanatech.com', // Path to a preview image in your /public folder
         width: 1200,
         height: 630,
       },
