@@ -341,7 +341,7 @@ export default function CollegeDecisionWebApp() {
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1280);
   const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
   const [scenario, setScenario] = useState<ScenarioKey>("policy");
-  const [studentName, setStudentName] = useState("Anjola");
+  const [studentName, setStudentName] = useState("FirstName");
   const [decisionGoal, setDecisionGoal] = useState(
     "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
   );
@@ -365,7 +365,7 @@ export default function CollegeDecisionWebApp() {
       try {
         const parsed = JSON.parse(saved);
         setScenario(parsed.scenario ?? "policy");
-        setStudentName(parsed.studentName ?? "Anjola");
+        setStudentName(parsed.studentName ?? "FirstName");
         setDecisionGoal(
           parsed.decisionGoal ??
             "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
@@ -534,7 +534,7 @@ export default function CollegeDecisionWebApp() {
 
   function resetAll() {
     setScenario("policy");
-    setStudentName("Anjola");
+    setStudentName("FirstName");
     setDecisionGoal("Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study.");
     setScoreScale("10");
     setColleges(initialColleges);
