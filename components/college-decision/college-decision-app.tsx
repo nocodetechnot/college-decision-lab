@@ -256,6 +256,7 @@ function ScaleSelect({ value, onChange }: { value: string; onChange: (v: string)
 }
 
 export default function CollegeDecisionWebApp() {
+  const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
   const [scenario, setScenario] = useState<ScenarioKey>("policy");
   const [studentName, setStudentName] = useState("Anjola");
   const [decisionGoal, setDecisionGoal] = useState(
@@ -564,175 +565,204 @@ export default function CollegeDecisionWebApp() {
               <div>{formulaText}</div>
             </div>
           </SectionCard>
-
-          <SectionCard title="Teaching Panel" subtitle="This section explains the model so the user learns while deciding.">
-            <div style={{ display: "grid", gap: 12 }}>
-              {teachingTips.map((tip, idx) => (
-                <details key={idx} style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 12, background: "#fff" }}>
-                  <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>{tip.title}</summary>
-                  <div style={{ marginTop: 10, fontSize: 14, color: "#475569", lineHeight: 1.5 }}>{tip.body}</div>
-                </details>
-              ))}
-            </div>
-          </SectionCard>
         </div>
 
-        <SectionCard
-          title="Criteria and Weights"
-          subtitle="Use any positive numbers. The app normalizes them automatically."
-          right={
-            <button onClick={addCriterion} style={buttonStyle}>
-              <Plus size={16} />
-              Add Criterion
-            </button>
-          }
-        >
-          <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
-            <div style={{ display: "grid", gap: 16 }}>
-              {normalizedWeights.map((criterion) => (
-                <div key={criterion.id} style={{ border: "1px dashed #cbd5e1", borderRadius: 16, padding: 16 }}>
-                  <div style={{ display: "grid", gap: 16, gridTemplateColumns: "minmax(0, 1fr) 120px 120px auto" }}>
-                    <div>
-                      <label style={smallLabelStyle}>Criterion Name</label>
-                      <input
-                        value={criterion.name}
-                        onChange={(e) => {
-                          updateCriterion(criterion.id, { name: e.target.value });
-                          setScenario("custom");
-                        }}
-                        style={inputStyle}
-                      />
-                      <div style={{ marginTop: 10 }}>
-                        <label style={smallLabelStyle}>Description</label>
-                        <textarea
-                          value={criterion.description}
-                          onChange={(e) => updateCriterion(criterion.id, { description: e.target.value })}
-                          style={textareaStyle}
-                          rows={2}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label style={smallLabelStyle}>Raw Weight</label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={criterion.weight}
-                        onChange={(e) => {
-                          updateCriterion(criterion.id, { weight: Number(e.target.value) });
-                          setScenario("custom");
-                        }}
-                        style={inputStyle}
-                      />
-                    </div>
-                    <div>
-                      <label style={smallLabelStyle}>Normalized</label>
-                      <div style={{ ...inputStyle, background: "#f8fafc", fontWeight: 600 }}>{criterion.normalizedWeight.toFixed(3)}</div>
-                      <div style={{ marginTop: 10 }}>
-                        <ProgressBar value={criterion.normalizedWeight * 100} />
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start", paddingTop: 28 }}>
-                      <button onClick={() => removeCriterion(criterion.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div style={{ ...cardStyle, padding: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
+          {[
+            ["weights", "Criteria and Weights"],
+            ["scores", "Score Matrix"],
+            ["results", "Results"],
+            ["notes", "Notes and Report"],
+          ].map(([key, label]) => {
+            const isActive = activeTab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key as typeof activeTab)}
+                style={{
+                  ...buttonStyle,
+                  background: isActive ? "#0f172a" : "#ffffff",
+                  color: isActive ? "#ffffff" : "#0f172a",
+                  border: isActive ? "1px solid #0f172a" : "1px solid #cbd5e1",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
 
-            <div style={{ display: "grid", gap: 16 }}>
-              <div style={{ ...cardStyle, padding: 16 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Why normalized weights matter</div>
-                <div style={{ marginTop: 8, fontSize: 14, color: "#475569", lineHeight: 1.5 }}>
-                  The raw values express preference. Normalization turns them into proportions that sum to 1.000.
+        {activeTab === "weights" && (
+          <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
+            <SectionCard title="Teaching Panel" subtitle="This section explains the model so the user learns while deciding.">
+              <div style={{ display: "grid", gap: 12 }}>
+                {teachingTips.map((tip, idx) => (
+                  <details key={idx} style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 12, background: "#fff" }}>
+                    <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>{tip.title}</summary>
+                    <div style={{ marginTop: 10, fontSize: 14, color: "#475569", lineHeight: 1.5 }}>{tip.body}</div>
+                  </details>
+                ))}
+              </div>
+            </SectionCard>
+
+            <SectionCard
+              title="Criteria and Weights"
+              subtitle="Use any positive numbers. The app normalizes them automatically."
+              right={
+                <button onClick={addCriterion} style={buttonStyle}>
+                  <Plus size={16} />
+                  Add Criterion
+                </button>
+              }
+            >
+              <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
+                <div style={{ display: "grid", gap: 16 }}>
+                  {normalizedWeights.map((criterion) => (
+                    <div key={criterion.id} style={{ border: "1px dashed #cbd5e1", borderRadius: 16, padding: 16 }}>
+                      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "minmax(0, 1fr) 120px 120px auto" }}>
+                        <div>
+                          <label style={smallLabelStyle}>Criterion Name</label>
+                          <input
+                            value={criterion.name}
+                            onChange={(e) => {
+                              updateCriterion(criterion.id, { name: e.target.value });
+                              setScenario("custom");
+                            }}
+                            style={inputStyle}
+                          />
+                          <div style={{ marginTop: 10 }}>
+                            <label style={smallLabelStyle}>Description</label>
+                            <textarea
+                              value={criterion.description}
+                              onChange={(e) => updateCriterion(criterion.id, { description: e.target.value })}
+                              style={textareaStyle}
+                              rows={2}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label style={smallLabelStyle}>Raw Weight</label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={criterion.weight}
+                            onChange={(e) => {
+                              updateCriterion(criterion.id, { weight: Number(e.target.value) });
+                              setScenario("custom");
+                            }}
+                            style={inputStyle}
+                          />
+                        </div>
+                        <div>
+                          <label style={smallLabelStyle}>Normalized</label>
+                          <div style={{ ...inputStyle, background: "#f8fafc", fontWeight: 600 }}>{criterion.normalizedWeight.toFixed(3)}</div>
+                          <div style={{ marginTop: 10 }}>
+                            <ProgressBar value={criterion.normalizedWeight * 100} />
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start", paddingTop: 28 }}>
+                          <button onClick={() => removeCriterion(criterion.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div
-                  style={{
-                    marginTop: 16,
-                    border: "1px solid #e2e8f0",
-                    borderRadius: 12,
-                    background: "#f8fafc",
-                    padding: 14,
-                    fontSize: 14,
-                    color: "#475569",
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: "#0f172a" }}>Example</div>
-                  <div style={{ marginTop: 8 }}>If Academic Fit = 8, Cost = 4, and Internship Access = 8, the total raw weight is 20.</div>
-                  <div style={{ marginTop: 8 }}>Normalized weights become 0.400, 0.200, and 0.400.</div>
-                </div>
-                <div style={{ marginTop: 16, fontSize: 14, color: "#475569" }}>
-                  <div style={{ fontWeight: 700, color: "#0f172a" }}>Current total raw weight</div>
-                  <div style={{ marginTop: 6, fontSize: 28, fontWeight: 800, color: "#0f172a" }}>
-                    {criteria.reduce((sum, c) => sum + Number(c.weight || 0), 0)}
+
+                <div style={{ ...cardStyle, padding: 16 }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Why normalized weights matter</div>
+                  <div style={{ marginTop: 8, fontSize: 14, color: "#475569", lineHeight: 1.5 }}>
+                    The raw values express preference. Normalization turns them into proportions that sum to 1.000.
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 12,
+                      background: "#f8fafc",
+                      padding: 14,
+                      fontSize: 14,
+                      color: "#475569",
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, color: "#0f172a" }}>Example</div>
+                    <div style={{ marginTop: 8 }}>If Academic Fit = 8, Cost = 4, and Internship Access = 8, the total raw weight is 20.</div>
+                    <div style={{ marginTop: 8 }}>Normalized weights become 0.400, 0.200, and 0.400.</div>
+                  </div>
+                  <div style={{ marginTop: 16, fontSize: 14, color: "#475569" }}>
+                    <div style={{ fontWeight: 700, color: "#0f172a" }}>Current total raw weight</div>
+                    <div style={{ marginTop: 6, fontSize: 28, fontWeight: 800, color: "#0f172a" }}>
+                      {criteria.reduce((sum, c) => sum + Number(c.weight || 0), 0)}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </SectionCard>
           </div>
-        </SectionCard>
+        )}
 
-        <SectionCard
-          title="School Score Matrix"
-          subtitle="Enter a score for each school on each criterion. Blank cells reduce completeness."
-          right={
-            <button onClick={addCollege} style={buttonStyle}>
-              <Plus size={16} />
-              Add College
-            </button>
-          }
-        >
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", minWidth: 960, borderCollapse: "collapse", fontSize: 14 }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220 }}>School</th>
-                  {criteria.map((criterion) => (
-                    <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150 }}>
-                      {criterion.name}
-                    </th>
-                  ))}
-                  <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220 }}>School Notes</th>
-                  <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0" }}>Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                {colleges.map((college) => (
-                  <tr key={college.id}>
-                    <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
-                      <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} />
-                    </td>
+        {activeTab === "scores" && (
+          <SectionCard
+            title="School Score Matrix"
+            subtitle="Enter a score for each school on each criterion. Blank cells reduce completeness."
+            right={
+              <button onClick={addCollege} style={buttonStyle}>
+                <Plus size={16} />
+                Add College
+              </button>
+            }
+          >
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", minWidth: 960, borderCollapse: "collapse", fontSize: 14 }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220 }}>School</th>
                     {criteria.map((criterion) => (
-                      <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
-                        <input
-                          type="number"
-                          min={0}
-                          max={scaleMax}
-                          value={scores[college.id]?.[criterion.id] ?? ""}
-                          onChange={(e) => updateScore(college.id, criterion.id, e.target.value)}
-                          style={inputStyle}
-                        />
-                      </td>
+                      <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150 }}>
+                        {criterion.name}
+                      </th>
                     ))}
-                    <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
-                      <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} />
-                    </td>
-                    <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
-                      <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
+                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220 }}>School Notes</th>
+                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0" }}>Remove</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </SectionCard>
+                </thead>
+                <tbody>
+                  {colleges.map((college) => (
+                    <tr key={college.id}>
+                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
+                        <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} />
+                      </td>
+                      {criteria.map((criterion) => (
+                        <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={scaleMax}
+                            value={scores[college.id]?.[criterion.id] ?? ""}
+                            onChange={(e) => updateScore(college.id, criterion.id, e.target.value)}
+                            style={inputStyle}
+                          />
+                        </td>
+                      ))}
+                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
+                        <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} />
+                      </td>
+                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
+                        <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SectionCard>
+        )}
 
-        <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
-          <div style={{ display: "grid", gap: 24 }}>
+        {activeTab === "results" && (
+          <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
             <SectionCard title="Ranked Results" subtitle="The numbers below reflect the current weights and current scores.">
               <div style={{ display: "grid", gap: 12 }}>
                 {results.map((result) => (
@@ -788,9 +818,7 @@ export default function CollegeDecisionWebApp() {
                 </div>
               </div>
             </SectionCard>
-          </div>
 
-          <div style={{ display: "grid", gap: 24 }}>
             <SectionCard title="Overall Score Chart">
               <div style={{ width: "100%", height: 360, minHeight: 240 }}>
                 <ResponsiveContainerAny width="100%" height="100%">
@@ -820,30 +848,32 @@ export default function CollegeDecisionWebApp() {
               </div>
             </SectionCard>
           </div>
-        </div>
+        )}
 
-        <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
-          <SectionCard title="Report Notes" subtitle="These notes will appear in the exported PDF.">
-            <textarea rows={12} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...textareaStyle, minHeight: 220 }} />
-          </SectionCard>
+        {activeTab === "notes" && (
+          <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
+            <SectionCard title="Report Notes" subtitle="These notes will appear in the exported PDF.">
+              <textarea rows={12} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...textareaStyle, minHeight: 220 }} />
+            </SectionCard>
 
-          <SectionCard title="Suggested workflow" subtitle="Use the app in a disciplined order.">
-            <div style={{ display: "grid", gap: 12, fontSize: 14, color: "#475569" }}>
-              {[
-                ["Step 1", "Choose a scenario or build a custom one."],
-                ["Step 2", "Agree on raw weights before entering school scores."],
-                ["Step 3", "Score each school honestly. Avoid giving every top school a 9 or 10 on every criterion."],
-                ["Step 4", "Review the ranking, then stress test it by changing one major weight at a time."],
-                ["Step 5", "Export the PDF and discuss the result with both numbers and judgment in view."],
-              ].map(([step, body]) => (
-                <div key={step} style={{ border: "1px solid #e2e8f0", borderRadius: 12, background: "#f8fafc", padding: 14 }}>
-                  <div style={{ fontWeight: 700, color: "#0f172a" }}>{step}</div>
-                  <div style={{ marginTop: 6 }}>{body}</div>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
-        </div>
+            <SectionCard title="Suggested workflow" subtitle="Use the app in a disciplined order.">
+              <div style={{ display: "grid", gap: 12, fontSize: 14, color: "#475569" }}>
+                {[
+                  ["Step 1", "Choose a scenario or build a custom one."],
+                  ["Step 2", "Agree on raw weights before entering school scores."],
+                  ["Step 3", "Score each school honestly. Avoid giving every top school a 9 or 10 on every criterion."],
+                  ["Step 4", "Review the ranking, then stress test it by changing one major weight at a time."],
+                  ["Step 5", "Export the PDF and discuss the result with both numbers and judgment in view."],
+                ].map(([step, body]) => (
+                  <div key={step} style={{ border: "1px solid #e2e8f0", borderRadius: 12, background: "#f8fafc", padding: 14 }}>
+                    <div style={{ fontWeight: 700, color: "#0f172a" }}>{step}</div>
+                    <div style={{ marginTop: 6 }}>{body}</div>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+          </div>
+        )}
       </div>
     </div>
   );
