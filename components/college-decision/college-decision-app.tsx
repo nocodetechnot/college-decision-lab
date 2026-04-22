@@ -279,6 +279,64 @@ function ScaleSelect({ value, onChange }: { value: string; onChange: (v: string)
   );
 }
 
+
+function ScoreMatrixMobileCard({
+  college,
+  criteria,
+  scaleMax,
+  scores,
+  updateCollege,
+  updateScore,
+  removeCollege,
+}: {
+  college: College;
+  criteria: Criterion[];
+  scaleMax: number;
+  scores: Scores;
+  updateCollege: (id: string, patch: Partial<College>) => void;
+  updateScore: (collegeId: string, criterionId: string, value: string) => void;
+  removeCollege: (id: string) => void;
+}) {
+  return (
+    <div style={{ border: "1px solid #e2e8f0", borderRadius: 16, padding: 14, background: "#ffffff", display: "grid", gap: 14 }}>
+      <div style={{ display: "grid", gap: 12 }}>
+        <div>
+          <label style={smallLabelStyle}>School</label>
+          <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
+        </div>
+        <div>
+          <label style={smallLabelStyle}>School Notes</label>
+          <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {criteria.map((criterion) => (
+          <div key={`${college.id}-${criterion.id}`} style={{ minWidth: 0 }}>
+            <label style={{ ...smallLabelStyle, marginBottom: 8 }}>{criterion.name}</label>
+            <input
+              type="number"
+              min={0}
+              max={scaleMax}
+              value={scores[college.id]?.[criterion.id] ?? ""}
+              onChange={(e) => updateScore(college.id, criterion.id, e.target.value)}
+              style={inputStyle}
+              inputMode="numeric"
+            />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-start" }}>
+        <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626", width: "100%", justifyContent: "center" }}>
+          <Trash2 size={16} />
+          Remove School
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CollegeDecisionWebApp() {
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1280);
   const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
@@ -533,8 +591,8 @@ export default function CollegeDecisionWebApp() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", padding: isNarrow ? 14 : 24, fontFamily: "Arial, Helvetica, sans-serif", colorScheme: "light" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gap: 24, width: "100%" }}>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", padding: isNarrow ? 12 : 24, fontFamily: "Arial, Helvetica, sans-serif", colorScheme: "light", overflowX: "hidden" }}>
+      <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gap: isNarrow ? 16 : 24, width: "100%" }}>
         <SectionCard
           title="College Decision Lab"
           subtitle="A weighted decision tool with transparent math, teaching prompts, and PDF export."
@@ -605,7 +663,7 @@ export default function CollegeDecisionWebApp() {
           </div>
         </SectionCard>
 
-        <div style={{ ...cardStyle, padding: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "stretch" }}>
+        <div style={{ ...cardStyle, padding: isNarrow ? 8 : 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "stretch", position: "sticky", top: 0, zIndex: 5, background: "#ffffffcc", backdropFilter: "blur(8px)" }}>
           {[
             ["weights", "Criteria and Weights"],
             ["scores", "Score Matrix"],
@@ -764,52 +822,72 @@ export default function CollegeDecisionWebApp() {
               </button>
             }
           >
-            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
-              <table style={{ width: "100%", minWidth: 960, borderCollapse: "collapse", fontSize: 14, color: "#0f172a" }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School</th>
-                    {criteria.map((criterion) => (
-                      <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150, color: "#0f172a", background: "#ffffff" }}>
-                        {criterion.name}
-                      </th>
-                    ))}
-                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School Notes</th>
-                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", color: "#0f172a", background: "#ffffff" }}>Remove</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {colleges.map((college) => (
-                    <tr key={college.id}>
-                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                        <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
-                      </td>
+            {isNarrow ? (
+              <div style={{ display: "grid", gap: 14 }}>
+                <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
+                  Mobile view uses stacked school cards instead of a wide matrix so the page stays usable on iPhone screens.
+                </div>
+                {colleges.map((college) => (
+                  <ScoreMatrixMobileCard
+                    key={college.id}
+                    college={college}
+                    criteria={criteria}
+                    scaleMax={scaleMax}
+                    scores={scores}
+                    updateCollege={updateCollege}
+                    updateScore={updateScore}
+                    removeCollege={removeCollege}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", border: "1px solid #e2e8f0", borderRadius: 14 }}>
+                <table style={{ width: "100%", minWidth: 960, borderCollapse: "separate", borderSpacing: 0, fontSize: 14, color: "#0f172a" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ position: "sticky", left: 0, zIndex: 2, textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School</th>
                       {criteria.map((criterion) => (
-                        <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                          <input
-                            type="number"
-                            min={0}
-                            max={scaleMax}
-                            value={scores[college.id]?.[criterion.id] ?? ""}
-                            onChange={(e) => updateScore(college.id, criterion.id, e.target.value)}
-                            style={inputStyle}
-                            inputMode="numeric"
-                          />
-                        </td>
+                        <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150, color: "#0f172a", background: "#ffffff" }}>
+                          {criterion.name}
+                        </th>
                       ))}
-                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                        <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
-                      </td>
-                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                        <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
+                      <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School Notes</th>
+                      <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", color: "#0f172a", background: "#ffffff" }}>Remove</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {colleges.map((college) => (
+                      <tr key={college.id}>
+                        <td style={{ position: "sticky", left: 0, zIndex: 1, padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                          <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
+                        </td>
+                        {criteria.map((criterion) => (
+                          <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                            <input
+                              type="number"
+                              min={0}
+                              max={scaleMax}
+                              value={scores[college.id]?.[criterion.id] ?? ""}
+                              onChange={(e) => updateScore(college.id, criterion.id, e.target.value)}
+                              style={inputStyle}
+                              inputMode="numeric"
+                            />
+                          </td>
+                        ))}
+                        <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                          <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
+                        </td>
+                        <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                          <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
+                            <Trash2 size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </SectionCard>
         )}
 
@@ -876,11 +954,11 @@ export default function CollegeDecisionWebApp() {
             <SectionCard title="Overall Score Chart">
               <div style={{ width: "100%", height: isNarrow ? 280 : 360, minHeight: 240 }}>
                 <ResponsiveContainerAny width="100%" height="100%">
-                  <BarChartAny data={barData}>
+                  <BarChartAny data={barData} margin={{ top: 8, right: isNarrow ? 8 : 16, left: isNarrow ? -20 : 0, bottom: isNarrow ? 40 : 52 }}>
                     <XAxisAny dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={isNarrow ? -12 : -20} textAnchor="end" height={isNarrow ? 60 : 70} />
-                    <YAxisAny />
+                    <YAxisAny width={isNarrow ? 28 : 40} />
                     <TooltipAny />
-                    <BarAny dataKey="score" radius={[8, 8, 0, 0]} />
+                    <BarAny dataKey="score" radius={[8, 8, 0, 0]} maxBarSize={52} />
                   </BarChartAny>
                 </ResponsiveContainerAny>
               </div>
@@ -889,14 +967,14 @@ export default function CollegeDecisionWebApp() {
             <SectionCard title="Top 3 Criteria Profile" subtitle="Use this to see whether the leader wins broadly or only under a narrow profile.">
               <div style={{ width: "100%", height: isNarrow ? 320 : 400, minHeight: 260 }}>
                 <ResponsiveContainerAny width="100%" height="100%">
-                  <RadarChartAny outerRadius={isNarrow ? "62%" : "72%"} data={radarData}>
+                  <RadarChartAny outerRadius={isNarrow ? "56%" : "72%"} data={radarData}>
                     <PolarGridAny />
-                    <PolarAngleAxisAny dataKey="criterion" tick={{ fontSize: 11 }} />
+                    <PolarAngleAxisAny dataKey="criterion" tick={{ fontSize: isNarrow ? 10 : 11 }} />
                     <PolarRadiusAxisAny domain={[0, scaleMax]} />
                     {results.slice(0, 3).map((result, idx) => (
                       <RadarAny key={result.college.id} name={result.college.name} dataKey={result.college.name} fillOpacity={0.18 + idx * 0.06} />
                     ))}
-                    <LegendAny />
+                    <LegendAny verticalAlign="bottom" wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
                   </RadarChartAny>
                 </ResponsiveContainerAny>
               </div>

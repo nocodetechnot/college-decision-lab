@@ -79,13 +79,13 @@
       width: 100%;
       height: auto;
       display: block;
-      filter: drop-shadow(0 10px 34px rgba(155,100,32,0.16));
+      filter: none;/*drop-shadow(0 10px 34px rgba(155,100,32,0.16)); */
     }
 
     .eyebrow {
       margin-top: 20px;
       color: rgba(155,100,32,0.86);
-      font-size: 11px;
+      font-size: 13px;
       letter-spacing: 0.32em;
       text-transform: uppercase;
     }
@@ -188,61 +188,55 @@
   <main class="shell">
     <section class="stage" aria-label="Gidana Technologies Launching Soon">
       <div class="logo-wrap">
-        <svg class="logo" viewBox="0 0 820 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Gidana logo mark">
+        <svg viewBox="0 0 360 400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Gidana logo mark">
           <defs>
-            <linearGradient id="gidanaGold" x1="220" y1="36" x2="600" y2="276" gradientUnits="userSpaceOnUse">
+            <linearGradient id="gidanaGold" x1="18" y1="24" x2="328" y2="360" gradientUnits="userSpaceOnUse">
               <stop stop-color="#F1D06B" />
-              <stop offset="0.52" stop-color="#D6AA4A" />
+              <stop offset="0.55" stop-color="#D6AA4A" />
               <stop offset="1" stop-color="#9B6420" />
             </linearGradient>
-            <filter id="softGlow" x="120" y="0" width="580" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-              <feGaussianBlur stdDeviation="8" result="blur" />
-              <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.18 0" result="glow"/>
-              <feBlend in="SourceGraphic" in2="glow" mode="screen"/>
-            </filter>
           </defs>
 
-          <g filter="url(#softGlow)" stroke="url(#gidanaGold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M410 30 558 115 558 205 410 290 262 205 262 115 410 30Z" />
-            <path d="M335 92 410 135 410 222 335 178 335 92Z" />
-            <path d="M485 92 410 135 410 222 485 178 485 92Z" />
-            <path d="M335 92 262 134" />
-            <path d="M485 92 558 134" />
-            <path d="M335 178 410 222" />
-            <path d="M485 178 410 222" />
-            <path d="M410 78 476 116 476 192 410 230 344 192 344 116 410 78Z" opacity="0.92" />
+          <g stroke="url(#gidanaGold)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 113 L95 71 L180 22 L275 71 L340 113" />
+            <path d="M340 113 L340 287 L246 342 L180 378 L20 287 L20 113" />
+            <path d="M95 71 L95 245" />
+            <path d="M95 154 L180 106 L275 71" />
+            <path d="M95 245 L180 294 L246 256" />
+            <path d="M246 154 L246 342" />
+            <path d="M246 154 L340 205" />
+            <path d="M180 200 L246 154" />
           </g>
 
           <g fill="url(#gidanaGold)">
-            <circle cx="410" cy="30" r="11" />
-            <circle cx="558" cy="115" r="11" />
-            <circle cx="558" cy="205" r="11" />
-            <circle cx="410" cy="290" r="11" />
-            <circle cx="262" cy="205" r="11" />
-            <circle cx="262" cy="115" r="11" />
-            <circle cx="335" cy="92" r="11" />
-            <circle cx="485" cy="92" r="11" />
-            <circle cx="335" cy="178" r="11" />
-            <circle cx="485" cy="178" r="11" />
-            <circle cx="410" cy="135" r="10" />
-            <circle cx="410" cy="222" r="10" />
-            <circle cx="344" cy="116" r="10" />
-            <circle cx="476" cy="116" r="10" />
-            <circle cx="344" cy="192" r="10" />
-            <circle cx="476" cy="192" r="10" />
-            <circle cx="410" cy="78" r="10" />
-            <circle cx="410" cy="230" r="10" />
+            <circle cx="20" cy="113" r="14" />
+            <circle cx="95" cy="71" r="14" />
+            <circle cx="180" cy="22" r="14" />
+            <circle cx="275" cy="71" r="14" />
+            <circle cx="340" cy="113" r="14" />
+            <circle cx="95" cy="154" r="14" />
+            <circle cx="180" cy="106" r="14" />
+            <circle cx="180" cy="200" r="14" />
+            <circle cx="246" cy="154" r="14" />
+            <circle cx="95" cy="245" r="14" />
+            <circle cx="180" cy="294" r="14" />
+            <circle cx="246" cy="256" r="14" />
+            <circle cx="20" cy="287" r="14" />
+            <circle cx="180" cy="378" r="14" />
+            <circle cx="340" cy="287" r="14" />
           </g>
         </svg>
       </div>
 
       <div class="eyebrow">Launching Soon</div>
+      <!--
       <div class="terminal" aria-label="building quietly animation">
         <span class="prompt">&gt;</span>
         <span class="type-line">
           <span class="typed-text">building quietly</span><span class="cursor">_</span>
         </span>
       </div>
+      -->
     </section>
   </main>
 
