@@ -65,8 +65,12 @@ const buttonStyle: React.CSSProperties = {
   borderRadius: 12,
   border: "1px solid #cbd5e1",
   background: "#ffffff",
+  color: "#0f172a",
   cursor: "pointer",
   fontWeight: 600,
+  fontSize: 14,
+  lineHeight: 1.2,
+  textAlign: "center",
 };
 
 const primaryButtonStyle: React.CSSProperties = {
@@ -82,8 +86,14 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 10,
   border: "1px solid #cbd5e1",
   background: "#ffffff",
+  color: "#0f172a",
+  caretColor: "#0f172a",
   fontSize: 14,
   boxSizing: "border-box",
+  WebkitTextFillColor: "#0f172a",
+  appearance: "none",
+  colorScheme: "light",
+  opacity: 1,
 };
 
 const textareaStyle: React.CSSProperties = {
@@ -91,6 +101,17 @@ const textareaStyle: React.CSSProperties = {
   minHeight: 90,
   resize: "vertical",
   fontFamily: "inherit",
+  lineHeight: 1.4,
+};
+
+const selectStyle: React.CSSProperties = {
+  ...inputStyle,
+  paddingRight: 36,
+  backgroundImage:
+    "linear-gradient(45deg, transparent 50%, #475569 50%), linear-gradient(135deg, #475569 50%, transparent 50%)",
+  backgroundPosition: "calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px)",
+  backgroundSize: "6px 6px, 6px 6px",
+  backgroundRepeat: "no-repeat",
 };
 
 const smallLabelStyle: React.CSSProperties = {
@@ -207,6 +228,7 @@ function SectionCard({
           justifyContent: "space-between",
           gap: 16,
           alignItems: "flex-start",
+          flexWrap: "wrap",
         }}
       >
         <div>
@@ -236,26 +258,29 @@ function ProgressBar({ value }: { value: number }) {
 
 function ScenarioSelect({ value, onChange }: { value: ScenarioKey; onChange: (v: ScenarioKey) => void }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value as ScenarioKey)} style={inputStyle}>
-      <option value="policy">Policy Focus</option>
-      <option value="econ">Wonky Economics</option>
-      <option value="mba">Economics then MBA</option>
-      <option value="custom">Custom</option>
+    <select value={value} onChange={(e) => onChange(e.target.value as ScenarioKey)} style={selectStyle}>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="policy">Policy Focus</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="econ">Wonky Economics</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="mba">Economics then MBA</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="custom">Custom</option>
     </select>
   );
 }
 
+
+
 function ScaleSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} style={inputStyle}>
-      <option value="5">5</option>
-      <option value="10">10</option>
-      <option value="100">100</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="5">5</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="10">10</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="100">100</option>
     </select>
   );
 }
 
 export default function CollegeDecisionWebApp() {
+  const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1280);
   const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
   const [scenario, setScenario] = useState<ScenarioKey>("policy");
   const [studentName, setStudentName] = useState("Anjola");
@@ -272,25 +297,34 @@ export default function CollegeDecisionWebApp() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const saved = window.localStorage.getItem("college-decision-app-state-v1");
-    if (!saved) return;
 
-    try {
-      const parsed = JSON.parse(saved);
-      setScenario(parsed.scenario ?? "policy");
-      setStudentName(parsed.studentName ?? "Anjola");
-      setDecisionGoal(
-        parsed.decisionGoal ??
-          "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
-      );
-      setScoreScale(parsed.scoreScale ?? "10");
-      setColleges(parsed.colleges ?? initialColleges);
-      setCriteria(parsed.criteria ?? initialCriteria);
-      setScores(parsed.scores ?? buildInitialScores(initialColleges, initialCriteria));
-      setNotes(parsed.notes ?? "Use this tool to compare colleges deliberately. Numbers help structure the choice. They do not replace judgment.");
-    } catch {
-      // Ignore malformed local storage.
+    const handleResize = () => setViewportWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    const saved = window.localStorage.getItem("college-decision-app-state-v1");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setScenario(parsed.scenario ?? "policy");
+        setStudentName(parsed.studentName ?? "Anjola");
+        setDecisionGoal(
+          parsed.decisionGoal ??
+            "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
+        );
+        setScoreScale(parsed.scoreScale ?? "10");
+        setColleges(parsed.colleges ?? initialColleges);
+        setCriteria(parsed.criteria ?? initialCriteria);
+        setScores(parsed.scores ?? buildInitialScores(initialColleges, initialCriteria));
+        setNotes(parsed.notes ?? "Use this tool to compare colleges deliberately. Numbers help structure the choice. They do not replace judgment.");
+      } catch {
+        // Ignore malformed local storage.
+      }
     }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -302,6 +336,8 @@ export default function CollegeDecisionWebApp() {
   }, [scenario, studentName, decisionGoal, scoreScale, colleges, criteria, scores, notes]);
 
   const scaleMax = Number(scoreScale) || 10;
+  const isNarrow = viewportWidth < 768;
+  const isMedium = viewportWidth >= 768 && viewportWidth < 1080;
 
   const normalizedWeights = useMemo(() => {
     const total = criteria.reduce((sum, c) => sum + Math.max(0, Number(c.weight) || 0), 0);
@@ -373,10 +409,7 @@ export default function CollegeDecisionWebApp() {
   }
 
   function updateScore(collegeId: string, criterionId: string, value: string) {
-    const cleaned =
-      value === ""
-        ? ""
-        : Math.max(0, Math.min(scaleMax, Number.isNaN(Number(value)) ? 0 : Number(value)));
+    const cleaned = value === "" ? "" : Math.max(0, Math.min(scaleMax, Number.isNaN(Number(value)) ? 0 : Number(value)));
 
     setScores((prev) => ({
       ...prev,
@@ -500,74 +533,79 @@ export default function CollegeDecisionWebApp() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", padding: 24, fontFamily: "Arial, Helvetica, sans-serif", overflowX: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", padding: isNarrow ? 14 : 24, fontFamily: "Arial, Helvetica, sans-serif", colorScheme: "light" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gap: 24, width: "100%" }}>
-        <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
-          <SectionCard
-            title="College Decision Lab"
-            subtitle="A weighted decision tool with transparent math, teaching prompts, and PDF export."
-            right={
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                <button onClick={exportPdf} style={primaryButtonStyle}>
-                  <Download size={16} />
-                  Export PDF
-                </button>
-                <button onClick={resetAll} style={buttonStyle}>
-                  Reset
-                </button>
-              </div>
-            }
+        <SectionCard
+          title="College Decision Lab"
+          subtitle="A weighted decision tool with transparent math, teaching prompts, and PDF export."
+          right={
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, width: isNarrow ? "100%" : undefined }}>
+              <button onClick={exportPdf} style={{ ...primaryButtonStyle, flex: isNarrow ? "1 1 100%" : "0 0 auto", justifyContent: "center" }}>
+                <Download size={16} />
+                Export PDF
+              </button>
+              <button onClick={resetAll} style={{ ...buttonStyle, flex: isNarrow ? "1 1 100%" : "0 0 auto", justifyContent: "center" }}>
+                Reset
+              </button>
+            </div>
+          }
+        >
+          <div
+            style={{
+              display: "grid",
+              gap: 16,
+              gridTemplateColumns: isNarrow ? "1fr" : isMedium ? "1fr 1fr" : "1fr 1fr 1fr",
+            }}
           >
-            <div style={{ display: "grid", gap: 16, gridTemplateColumns: "1fr 1fr 1fr" }}>
-              <div>
-                <label style={smallLabelStyle}>Student Name</label>
-                <input value={studentName} onChange={(e) => setStudentName(e.target.value)} style={inputStyle} />
-              </div>
-              <div>
-                <label style={smallLabelStyle}>Decision Scenario</label>
-                <ScenarioSelect value={scenario} onChange={setScenarioWeights} />
-              </div>
-              <div>
-                <label style={smallLabelStyle}>Score Scale Max</label>
-                <ScaleSelect value={scoreScale} onChange={setScoreScale} />
-              </div>
+            <div>
+              <label style={smallLabelStyle}>Student Name</label>
+              <input value={studentName} onChange={(e) => setStudentName(e.target.value)} style={inputStyle} autoComplete="off" spellCheck={false} />
             </div>
-
-            <div style={{ marginTop: 16 }}>
-              <label style={smallLabelStyle}>Decision Goal</label>
-              <textarea value={decisionGoal} onChange={(e) => setDecisionGoal(e.target.value)} style={textareaStyle} rows={3} />
+            <div>
+              <label style={smallLabelStyle}>Decision Scenario</label>
+              <ScenarioSelect value={scenario} onChange={setScenarioWeights} />
             </div>
+            <div>
+              <label style={smallLabelStyle}>Score Scale Max</label>
+              <ScaleSelect value={scoreScale} onChange={setScoreScale} />
+            </div>
+          </div>
 
+          <div style={{ marginTop: 16 }}>
+            <label style={smallLabelStyle}>Decision Goal</label>
+            <textarea value={decisionGoal} onChange={(e) => setDecisionGoal(e.target.value)} style={textareaStyle} rows={3} spellCheck={false} />
+          </div>
+
+          <div
+            style={{
+              marginTop: 16,
+              border: "1px solid #e2e8f0",
+              borderRadius: 16,
+              background: "#f1f5f9",
+              padding: 16,
+              fontSize: 14,
+              color: "#334155",
+            }}
+          >
             <div
               style={{
-                marginTop: 16,
-                border: "1px solid #e2e8f0",
-                borderRadius: 16,
-                background: "#f1f5f9",
-                padding: 16,
-                fontSize: 14,
-                color: "#334155",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontWeight: 700,
+                color: "#0f172a",
+                marginBottom: 8,
+                flexWrap: "wrap",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontWeight: 700,
-                  color: "#0f172a",
-                  marginBottom: 8,
-                }}
-              >
-                <Calculator size={16} />
-                Formula shown on the UI
-              </div>
-              <div>{formulaText}</div>
+              <Calculator size={16} />
+              Formula shown on the UI
             </div>
-          </SectionCard>
-        </div>
+            <div>{formulaText}</div>
+          </div>
+        </SectionCard>
 
-        <div style={{ ...cardStyle, padding: 10, display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ ...cardStyle, padding: 10, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "stretch" }}>
           {[
             ["weights", "Criteria and Weights"],
             ["scores", "Score Matrix"],
@@ -584,6 +622,9 @@ export default function CollegeDecisionWebApp() {
                   background: isActive ? "#0f172a" : "#ffffff",
                   color: isActive ? "#ffffff" : "#0f172a",
                   border: isActive ? "1px solid #0f172a" : "1px solid #cbd5e1",
+                  flex: isNarrow ? "1 1 100%" : "1 1 220px",
+                  justifyContent: "center",
+                  whiteSpace: "normal",
                 }}
               >
                 {label}
@@ -609,7 +650,7 @@ export default function CollegeDecisionWebApp() {
               title="Criteria and Weights"
               subtitle="Use any positive numbers. The app normalizes them automatically."
               right={
-                <button onClick={addCriterion} style={buttonStyle}>
+                <button onClick={addCriterion} style={{ ...buttonStyle, width: isNarrow ? "100%" : undefined, justifyContent: "center" }}>
                   <Plus size={16} />
                   Add Criterion
                 </button>
@@ -619,7 +660,13 @@ export default function CollegeDecisionWebApp() {
                 <div style={{ display: "grid", gap: 16 }}>
                   {normalizedWeights.map((criterion) => (
                     <div key={criterion.id} style={{ border: "1px dashed #cbd5e1", borderRadius: 16, padding: 16 }}>
-                      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "minmax(0, 1fr) 120px 120px auto" }}>
+                      <div
+                        style={{
+                          display: "grid",
+                          gap: 16,
+                          gridTemplateColumns: isNarrow ? "1fr" : isMedium ? "minmax(0, 1fr) 120px 120px" : "minmax(0, 1fr) 120px 120px auto",
+                        }}
+                      >
                         <div>
                           <label style={smallLabelStyle}>Criterion Name</label>
                           <input
@@ -629,6 +676,8 @@ export default function CollegeDecisionWebApp() {
                               setScenario("custom");
                             }}
                             style={inputStyle}
+                            autoComplete="off"
+                            spellCheck={false}
                           />
                           <div style={{ marginTop: 10 }}>
                             <label style={smallLabelStyle}>Description</label>
@@ -637,6 +686,7 @@ export default function CollegeDecisionWebApp() {
                               onChange={(e) => updateCriterion(criterion.id, { description: e.target.value })}
                               style={textareaStyle}
                               rows={2}
+                              spellCheck={false}
                             />
                           </div>
                         </div>
@@ -651,6 +701,7 @@ export default function CollegeDecisionWebApp() {
                               setScenario("custom");
                             }}
                             style={inputStyle}
+                            inputMode="numeric"
                           />
                         </div>
                         <div>
@@ -660,7 +711,7 @@ export default function CollegeDecisionWebApp() {
                             <ProgressBar value={criterion.normalizedWeight * 100} />
                           </div>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-start", paddingTop: 28 }}>
+                        <div style={{ display: "flex", justifyContent: isNarrow ? "flex-start" : "flex-end", alignItems: "flex-start", paddingTop: isNarrow ? 0 : 28 }}>
                           <button onClick={() => removeCriterion(criterion.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
                             <Trash2 size={16} />
                           </button>
@@ -707,34 +758,34 @@ export default function CollegeDecisionWebApp() {
             title="School Score Matrix"
             subtitle="Enter a score for each school on each criterion. Blank cells reduce completeness."
             right={
-              <button onClick={addCollege} style={buttonStyle}>
+              <button onClick={addCollege} style={{ ...buttonStyle, width: isNarrow ? "100%" : undefined, justifyContent: "center" }}>
                 <Plus size={16} />
                 Add College
               </button>
             }
           >
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", minWidth: 960, borderCollapse: "collapse", fontSize: 14 }}>
+            <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%" }}>
+              <table style={{ width: "100%", minWidth: 960, borderCollapse: "collapse", fontSize: 14, color: "#0f172a" }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220 }}>School</th>
+                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School</th>
                     {criteria.map((criterion) => (
-                      <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150 }}>
+                      <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150, color: "#0f172a", background: "#ffffff" }}>
                         {criterion.name}
                       </th>
                     ))}
-                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220 }}>School Notes</th>
-                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0" }}>Remove</th>
+                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School Notes</th>
+                    <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", color: "#0f172a", background: "#ffffff" }}>Remove</th>
                   </tr>
                 </thead>
                 <tbody>
                   {colleges.map((college) => (
                     <tr key={college.id}>
-                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
-                        <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} />
+                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                        <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
                       </td>
                       {criteria.map((criterion) => (
-                        <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
+                        <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
                           <input
                             type="number"
                             min={0}
@@ -742,13 +793,14 @@ export default function CollegeDecisionWebApp() {
                             value={scores[college.id]?.[criterion.id] ?? ""}
                             onChange={(e) => updateScore(college.id, criterion.id, e.target.value)}
                             style={inputStyle}
+                            inputMode="numeric"
                           />
                         </td>
                       ))}
-                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
-                        <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} />
+                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                        <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
                       </td>
-                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top" }}>
+                      <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
                         <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
                           <Trash2 size={16} />
                         </button>
@@ -770,15 +822,17 @@ export default function CollegeDecisionWebApp() {
                     key={result.college.id}
                     style={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: isNarrow ? "flex-start" : "center",
+                      flexDirection: isNarrow ? "column" : "row",
                       justifyContent: "space-between",
+                      gap: 12,
                       border: "1px solid #e2e8f0",
                       borderRadius: 16,
                       padding: 16,
                     }}
                   >
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                         <span
                           style={{
                             display: "inline-block",
@@ -796,7 +850,7 @@ export default function CollegeDecisionWebApp() {
                       </div>
                       <div style={{ marginTop: 8, fontSize: 13, color: "#64748b" }}>Completeness: {result.completeness}%</div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
+                    <div style={{ textAlign: isNarrow ? "left" : "right" }}>
                       <div style={{ fontSize: 28, fontWeight: 800, color: "#0f172a" }}>{result.total.toFixed(3)}</div>
                       {result.rank === 1 ? <div style={{ fontSize: 13, color: "#059669" }}>Current leader</div> : null}
                     </div>
@@ -820,10 +874,10 @@ export default function CollegeDecisionWebApp() {
             </SectionCard>
 
             <SectionCard title="Overall Score Chart">
-              <div style={{ width: "100%", height: 360, minHeight: 240 }}>
+              <div style={{ width: "100%", height: isNarrow ? 280 : 360, minHeight: 240 }}>
                 <ResponsiveContainerAny width="100%" height="100%">
                   <BarChartAny data={barData}>
-                    <XAxisAny dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={70} />
+                    <XAxisAny dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={isNarrow ? -12 : -20} textAnchor="end" height={isNarrow ? 60 : 70} />
                     <YAxisAny />
                     <TooltipAny />
                     <BarAny dataKey="score" radius={[8, 8, 0, 0]} />
@@ -833,9 +887,9 @@ export default function CollegeDecisionWebApp() {
             </SectionCard>
 
             <SectionCard title="Top 3 Criteria Profile" subtitle="Use this to see whether the leader wins broadly or only under a narrow profile.">
-              <div style={{ width: "100%", height: 400, minHeight: 260 }}>
+              <div style={{ width: "100%", height: isNarrow ? 320 : 400, minHeight: 260 }}>
                 <ResponsiveContainerAny width="100%" height="100%">
-                  <RadarChartAny outerRadius="72%" data={radarData}>
+                  <RadarChartAny outerRadius={isNarrow ? "62%" : "72%"} data={radarData}>
                     <PolarGridAny />
                     <PolarAngleAxisAny dataKey="criterion" tick={{ fontSize: 11 }} />
                     <PolarRadiusAxisAny domain={[0, scaleMax]} />
@@ -853,7 +907,7 @@ export default function CollegeDecisionWebApp() {
         {activeTab === "notes" && (
           <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
             <SectionCard title="Report Notes" subtitle="These notes will appear in the exported PDF.">
-              <textarea rows={12} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...textareaStyle, minHeight: 220 }} />
+              <textarea rows={12} value={notes} onChange={(e) => setNotes(e.target.value)} style={{ ...textareaStyle, minHeight: 220 }} spellCheck={false} />
             </SectionCard>
 
             <SectionCard title="Suggested workflow" subtitle="Use the app in a disciplined order.">
