@@ -7,13 +7,16 @@
   <meta name="description" content="Gidana Technologies is launching soon." />
   <style>
     :root {
-      --bg-1: #090c16;
-      --bg-2: #0b1020;
+      --bg: #ffffff;
+      --bg-soft: #f7f7f5;
       --gold-1: #f1d06b;
       --gold-2: #d6aa4a;
       --gold-3: #9b6420;
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.68);
+      --text: #111827;
+      --muted: rgba(17, 24, 39, 0.72);
+      --muted-2: rgba(17, 24, 39, 0.42);
+      --terminal-bg: #ffffff;
+      --terminal-text: #d6aa4a;
     }
 
     * { box-sizing: border-box; }
@@ -28,9 +31,9 @@
       font-family: Arial, Helvetica, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top, rgba(214,170,74,0.16), transparent 24%),
-        radial-gradient(circle at 82% 18%, rgba(214,170,74,0.08), transparent 18%),
-        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 52%, #070910 100%);
+        radial-gradient(circle at top, rgba(214,170,74,0.12), transparent 20%),
+        radial-gradient(circle at 85% 18%, rgba(214,170,74,0.06), transparent 14%),
+        linear-gradient(180deg, #ffffff 0%, var(--bg-soft) 100%);
       overflow-x: hidden;
     }
 
@@ -39,10 +42,10 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.045;
+      opacity: 0.035;
       background-image:
-        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+        linear-gradient(rgba(17,24,39,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17,24,39,0.08) 1px, transparent 1px);
       background-size: 48px 48px;
     }
 
@@ -52,7 +55,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 24px 24px 96px;
     }
 
     .stage {
@@ -76,15 +79,57 @@
       width: 100%;
       height: auto;
       display: block;
-      filter: drop-shadow(0 12px 40px rgba(0,0,0,0.32));
+      filter: drop-shadow(0 10px 34px rgba(155,100,32,0.16));
     }
 
     .eyebrow {
       margin-top: 20px;
-      color: rgba(231,207,149,0.92);
+      color: rgba(155,100,32,0.86);
       font-size: 11px;
       letter-spacing: 0.32em;
       text-transform: uppercase;
+    }
+
+    .terminal {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: var(--terminal-bg);
+      color: var(--terminal-text);
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      border: 1px solid rgba(214,170,74,0.18);
+    }
+
+    .prompt {
+      color: rgba(214,170,74,0.75);
+      user-select: none;
+    }
+
+    .type-line {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+    }
+
+    .typed-text {
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 3.2s steps(16, end) infinite alternate;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 9px;
+      margin-left: 2px;
+      color: var(--terminal-text);
+      animation: blink 1s steps(1, end) infinite;
     }
 
     p {
@@ -95,18 +140,47 @@
       color: var(--muted);
     }
 
-    footer {
-      margin-top: 44px;
+    .footer-fixed {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 18px;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .footer-fixed span {
       font-size: 12px;
       letter-spacing: 0.14em;
-      color: rgba(255,255,255,0.42);
+      text-transform: uppercase;
+      color: var(--muted-2);
+      padding: 0 12px;
+    }
+
+    @keyframes typing {
+      0% { width: 0; }
+      55% { width: 16ch; }
+      100% { width: 16ch; }
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
     }
 
     @media (max-width: 640px) {
-      .shell { padding: 16px; }
+      .shell { padding: 16px 16px 84px; }
       .logo-wrap { width: min(100%, 300px); }
       .eyebrow { letter-spacing: 0.22em; }
-      footer { margin-top: 34px; }
+      .terminal {
+        width: 100%;
+        justify-content: center;
+        font-size: 13px;
+      }
+      .footer-fixed { bottom: 12px; }
+      .footer-fixed span { font-size: 11px; }
     }
   </style>
 </head>
@@ -116,57 +190,64 @@
       <div class="logo-wrap">
         <svg class="logo" viewBox="0 0 820 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Gidana logo mark">
           <defs>
-            <linearGradient id="gidanaGold" x1="170" y1="30" x2="650" y2="275" gradientUnits="userSpaceOnUse">
+            <linearGradient id="gidanaGold" x1="220" y1="36" x2="600" y2="276" gradientUnits="userSpaceOnUse">
               <stop stop-color="#F1D06B" />
               <stop offset="0.52" stop-color="#D6AA4A" />
               <stop offset="1" stop-color="#9B6420" />
             </linearGradient>
-            <filter id="softGlow" x="0" y="0" width="820" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-              <feGaussianBlur stdDeviation="10" result="blur" />
-              <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.24 0" result="glow"/>
+            <filter id="softGlow" x="120" y="0" width="580" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.18 0" result="glow"/>
               <feBlend in="SourceGraphic" in2="glow" mode="screen"/>
             </filter>
           </defs>
 
           <g filter="url(#softGlow)" stroke="url(#gidanaGold)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M410 28 585 129 585 191 410 292 235 191 235 129 410 28Z" />
-            <path d="M337 93 459 163 459 231 337 161 337 93Z" />
-            <path d="M459 163 553 109" />
-            <path d="M459 231 553 177" />
-            <path d="M337 161 459 231" />
-            <path d="M337 93 243 147" />
-            <path d="M410 122 505 177 505 138 410 83 315 138 315 178 410 233 505 178" opacity="0.9" />
+            <path d="M410 30 558 115 558 205 410 290 262 205 262 115 410 30Z" />
+            <path d="M335 92 410 135 410 222 335 178 335 92Z" />
+            <path d="M485 92 410 135 410 222 485 178 485 92Z" />
+            <path d="M335 92 262 134" />
+            <path d="M485 92 558 134" />
+            <path d="M335 178 410 222" />
+            <path d="M485 178 410 222" />
+            <path d="M410 78 476 116 476 192 410 230 344 192 344 116 410 78Z" opacity="0.92" />
           </g>
 
           <g fill="url(#gidanaGold)">
-            <circle cx="410" cy="28" r="11" />
-            <circle cx="585" cy="129" r="11" />
-            <circle cx="585" cy="191" r="11" />
-            <circle cx="410" cy="292" r="11" />
-            <circle cx="235" cy="191" r="11" />
-            <circle cx="235" cy="129" r="11" />
-            <circle cx="337" cy="93" r="11" />
-            <circle cx="459" cy="163" r="11" />
-            <circle cx="459" cy="231" r="11" />
-            <circle cx="337" cy="161" r="11" />
-            <circle cx="410" cy="122" r="10" />
-            <circle cx="505" cy="177" r="10" />
-            <circle cx="505" cy="138" r="10" />
-            <circle cx="410" cy="83" r="10" />
-            <circle cx="315" cy="138" r="10" />
-            <circle cx="315" cy="178" r="10" />
-            <circle cx="410" cy="233" r="10" />
+            <circle cx="410" cy="30" r="11" />
+            <circle cx="558" cy="115" r="11" />
+            <circle cx="558" cy="205" r="11" />
+            <circle cx="410" cy="290" r="11" />
+            <circle cx="262" cy="205" r="11" />
+            <circle cx="262" cy="115" r="11" />
+            <circle cx="335" cy="92" r="11" />
+            <circle cx="485" cy="92" r="11" />
+            <circle cx="335" cy="178" r="11" />
+            <circle cx="485" cy="178" r="11" />
+            <circle cx="410" cy="135" r="10" />
+            <circle cx="410" cy="222" r="10" />
+            <circle cx="344" cy="116" r="10" />
+            <circle cx="476" cy="116" r="10" />
+            <circle cx="344" cy="192" r="10" />
+            <circle cx="476" cy="192" r="10" />
+            <circle cx="410" cy="78" r="10" />
+            <circle cx="410" cy="230" r="10" />
           </g>
         </svg>
       </div>
 
+      <div class="eyebrow">Launching Soon</div>
+      <div class="terminal" aria-label="building quietly animation">
+        <span class="prompt">&gt;</span>
+        <span class="type-line">
+          <span class="typed-text">building quietly</span><span class="cursor">_</span>
+        </span>
+      </div>
     </section>
   </main>
-  <footer>
-    © <span id="year"></span> Gidana Technologies 
-  </footer>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-  </body>
+
+  <div class="footer-fixed">
+    <span>© Gidana Technologies 2026</span>
+  </div>
+</body>
 </html>
