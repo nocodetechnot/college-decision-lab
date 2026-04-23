@@ -252,7 +252,7 @@ function SectionCard({
         </div>
         {right}
       </div>
-      <div style={{ padding: 20 }}>{children}</div>
+      <div style={{ padding: 20, minWidth: 0, maxWidth: "100%" }}>{children}</div>
     </div>
   );
 }
@@ -713,6 +713,11 @@ export default function CollegeDecisionWebApp() {
               color: "#334155",
             }}
           >
+            {!isNarrow ? (
+              <div style={{ marginBottom: 12, fontSize: 13, color: "#64748b" }}>
+                Scroll horizontally to see all criteria. The School column stays pinned on the left.
+              </div>
+            ) : null}
             <div
               style={{
                 display: "flex",
@@ -909,28 +914,50 @@ export default function CollegeDecisionWebApp() {
                 ))}
               </div>
             ) : (
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", width: "100%", border: "1px solid #e2e8f0", borderRadius: 14 }}>
-                <table style={{ width: "100%", minWidth: 960, borderCollapse: "separate", borderSpacing: 0, fontSize: 14, color: "#0f172a" }}>
-                  <thead>
-                    <tr>
-                      <th style={{ position: "sticky", left: 0, zIndex: 2, textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School</th>
-                      {criteria.map((criterion) => (
-                        <th key={criterion.id} style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 150, color: "#0f172a", background: "#ffffff" }}>
-                          {criterion.name}
-                        </th>
-                      ))}
-                      <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", minWidth: 220, color: "#0f172a", background: "#ffffff" }}>School Notes</th>
-                      <th style={{ textAlign: "left", padding: 12, borderBottom: "1px solid #e2e8f0", color: "#0f172a", background: "#ffffff" }}>Remove</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <div style={{ display: "grid", gap: 14, minWidth: 0, maxWidth: "100%" }}>
+                <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
+                  Desktop view uses wrapped school rows so the matrix stays readable without pushing past the page edge. If space gets tight, the section can still scroll horizontally.
+                </div>
+                <div
+                  style={{
+                    width: "100%",
+                    maxWidth: "100%",
+                    minWidth: 0,
+                    overflowX: "auto",
+                    overflowY: "hidden",
+                    WebkitOverflowScrolling: "touch",
+                    paddingBottom: 2,
+                  }}
+                >
+                  <div style={{ display: "grid", gap: 14, minWidth: isMedium ? 760 : 900 }}>
                     {colleges.map((college) => (
-                      <tr key={college.id}>
-                        <td style={{ position: "sticky", left: 0, zIndex: 1, padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                          <input value={college.name} onChange={(e) => updateCollege(college.id, { name: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
-                        </td>
+                      <div
+                        key={college.id}
+                        style={{
+                          border: "1px solid #e2e8f0",
+                          borderRadius: 16,
+                          background: "#ffffff",
+                          padding: 14,
+                          display: "grid",
+                          gap: 12,
+                          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                          alignItems: "start",
+                        }}
+                      >
+                        <div style={{ minWidth: 0, gridColumn: "span 2" }}>
+                          <label style={smallLabelStyle}>School</label>
+                          <input
+                            value={college.name}
+                            onChange={(e) => updateCollege(college.id, { name: e.target.value })}
+                            style={inputStyle}
+                            autoComplete="off"
+                            spellCheck={false}
+                          />
+                        </div>
+
                         {criteria.map((criterion) => (
-                          <td key={`${college.id}-${criterion.id}`} style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
+                          <div key={`${college.id}-${criterion.id}`} style={{ minWidth: 0 }}>
+                            <label style={smallLabelStyle}>{criterion.name}</label>
                             <input
                               type="number"
                               min={0}
@@ -940,20 +967,33 @@ export default function CollegeDecisionWebApp() {
                               style={inputStyle}
                               inputMode="numeric"
                             />
-                          </td>
+                          </div>
                         ))}
-                        <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                          <input value={college.notes} onChange={(e) => updateCollege(college.id, { notes: e.target.value })} style={inputStyle} autoComplete="off" spellCheck={false} />
-                        </td>
-                        <td style={{ padding: 10, borderBottom: "1px solid #f1f5f9", verticalAlign: "top", color: "#0f172a", background: "#ffffff" }}>
-                          <button onClick={() => removeCollege(college.id)} style={{ ...buttonStyle, color: "#dc2626" }}>
+
+                        <div style={{ minWidth: 0, gridColumn: "span 2" }}>
+                          <label style={smallLabelStyle}>School Notes</label>
+                          <input
+                            value={college.notes}
+                            onChange={(e) => updateCollege(college.id, { notes: e.target.value })}
+                            style={inputStyle}
+                            autoComplete="off"
+                            spellCheck={false}
+                          />
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "end" }}>
+                          <button
+                            onClick={() => removeCollege(college.id)}
+                            style={{ ...buttonStyle, color: "#dc2626", width: "100%", justifyContent: "center" }}
+                          >
                             <Trash2 size={16} />
+                            Remove School
                           </button>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
               </div>
             )}
           </SectionCard>
