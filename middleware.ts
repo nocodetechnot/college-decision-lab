@@ -6,7 +6,10 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
 
   // If visiting the root domain (gidanatech.com)
-  if (host === 'gidanatech.com' || host === 'www.gidanatech.com') {
+  if (host === 'gidanatech.com' || 
+      host === 'www.gidanatech.com' ||
+      host === 'gidana.ai' ||
+      host === 'www.gidana.ai') {
     // If they are at the homepage, show them the landing page content
     if (url.pathname === '/') {
       url.pathname = '/landing.html';

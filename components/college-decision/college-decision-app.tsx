@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Plus, Trash2, Calculator } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -14,9 +14,11 @@ import {
   PolarRadiusAxis,
   Radar,
   Legend,
+  Cell,
 } from "recharts";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { toPng } from "html-to-image";
 
 const ResponsiveContainerAny = ResponsiveContainer as any;
 const BarChartAny = BarChart as any;
@@ -30,6 +32,7 @@ const PolarAngleAxisAny = PolarAngleAxis as any;
 const PolarRadiusAxisAny = PolarRadiusAxis as any;
 const RadarAny = Radar as any;
 const LegendAny = Legend as any;
+const CellAny = Cell as any;
 
 type Criterion = {
   id: string;
@@ -139,6 +142,18 @@ const teachingTips = [
     title: "Why scenario testing matters",
     body: "Run the tool under more than one scenario. A school that wins only under one narrow set of assumptions may be less robust than one that stays near the top across scenarios.",
   },
+];
+
+
+const chartPalette = [
+  "#0f172a",
+  "#2563eb",
+  "#059669",
+  "#dc2626",
+  "#7c3aed",
+  "#ea580c",
+  "#0891b2",
+  "#ca8a04",
 ];
 
 const initialColleges: College[] = [
@@ -341,7 +356,7 @@ export default function CollegeDecisionWebApp() {
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1280);
   const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
   const [scenario, setScenario] = useState<ScenarioKey>("policy");
-  const [studentName, setStudentName] = useState("FirstName");
+  const [studentName, setStudentName] = useState("Anjola");
   const [decisionGoal, setDecisionGoal] = useState(
     "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
   );
@@ -352,6 +367,9 @@ export default function CollegeDecisionWebApp() {
   const [notes, setNotes] = useState(
     "Use this tool to compare colleges deliberately. Numbers help structure the choice. They do not replace judgment."
   );
+
+  const resultsChartRef = useRef<HTMLDivElement | null>(null);
+  const radarChartRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -365,7 +383,7 @@ export default function CollegeDecisionWebApp() {
       try {
         const parsed = JSON.parse(saved);
         setScenario(parsed.scenario ?? "policy");
-        setStudentName(parsed.studentName ?? "FirstName");
+        setStudentName(parsed.studentName ?? "Anjola");
         setDecisionGoal(
           parsed.decisionGoal ??
             "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
@@ -435,6 +453,9 @@ export default function CollegeDecisionWebApp() {
 
   const formulaText =
     "Final Score = Σ (Normalized Weight × Criterion Score), where Normalized Weight = Raw Weight ÷ Sum of All Raw Weights.";
+
+  const formulaTextPdf =
+    "Final Score = SUM(Normalized Weight x Criterion Score), where Normalized Weight = Raw Weight / Sum of All Raw Weights.";
 
   const barData = results.map((r) => ({
     name: r.college.name.length > 18 ? `${r.college.name.slice(0, 18)}…` : r.college.name,
@@ -534,7 +555,7 @@ export default function CollegeDecisionWebApp() {
 
   function resetAll() {
     setScenario("policy");
-    setStudentName("FirstName");
+    setStudentName("Anjola");
     setDecisionGoal("Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study.");
     setScoreScale("10");
     setColleges(initialColleges);
@@ -543,20 +564,27 @@ export default function CollegeDecisionWebApp() {
     setNotes("Use this tool to compare colleges deliberately. Numbers help structure the choice. They do not replace judgment.");
   }
 
-  function exportPdf() {
+  async function exportPdf() {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const usableWidth = pageWidth - 80;
+
+    doc.setFont("helvetica", "normal");
+    doc.setCharSpace(0);
+
     doc.setFontSize(18);
     doc.text(`${studentName} College Decision Report`, 40, 40);
+
     doc.setFontSize(11);
-    doc.text(`Decision Goal: ${decisionGoal}`, 40, 62, { maxWidth: 500 });
-    doc.text(`Formula: ${formulaText}`, 40, 88, { maxWidth: 500 });
+    doc.text(`Decision Goal: ${decisionGoal}`, 40, 62, { maxWidth: usableWidth });
+    doc.text(`Formula: ${formulaTextPdf}`, 40, 88, { maxWidth: usableWidth });
     doc.text(`Scenario: ${scenario.toUpperCase()}`, 40, 114);
 
     autoTable(doc, {
       startY: 138,
       head: [["Rank", "College", "Final Score", "Completion", "Notes"]],
       body: results.map((r) => [String(r.rank), r.college.name, r.total.toFixed(3), `${r.completeness}%`, r.college.notes || ""]),
-      styles: { fontSize: 10, cellPadding: 6 },
+      styles: { fontSize: 10, cellPadding: 6, font: "helvetica", overflow: "linebreak" },
       headStyles: { fillColor: [30, 41, 59] },
     });
 
@@ -564,7 +592,7 @@ export default function CollegeDecisionWebApp() {
       startY: (doc as any).lastAutoTable.finalY + 20,
       head: [["Criterion", "Raw Weight", "Normalized Weight", "Description"]],
       body: normalizedWeights.map((c) => [c.name, String(c.weight), c.normalizedWeight.toFixed(3), c.description]),
-      styles: { fontSize: 10, cellPadding: 6 },
+      styles: { fontSize: 10, cellPadding: 6, font: "helvetica", overflow: "linebreak" },
       headStyles: { fillColor: [30, 41, 59] },
     });
 
@@ -578,15 +606,55 @@ export default function CollegeDecisionWebApp() {
           return value === "" ? "" : String(value);
         }),
       ]),
-      styles: { fontSize: 8, cellPadding: 4 },
+      styles: { fontSize: 8, cellPadding: 4, font: "helvetica", overflow: "linebreak" },
       headStyles: { fillColor: [30, 41, 59] },
       horizontalPageBreak: true,
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
+    let y = (doc as any).lastAutoTable.finalY + 20;
+
+    const addChartToPdf = async (title: string, node: HTMLDivElement | null) => {
+      if (!node) return;
+      if (y > 640) {
+        doc.addPage();
+        y = 40;
+      }
+
+      doc.setFontSize(12);
+      doc.text(title, 40, y);
+      y += 12;
+
+      const dataUrl = await toPng(node, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgProps = doc.getImageProperties(dataUrl);
+      const targetWidth = usableWidth;
+      const targetHeight = (imgProps.height * targetWidth) / imgProps.width;
+
+      if (y + targetHeight > 780) {
+        doc.addPage();
+        y = 40;
+      }
+
+      doc.addImage(dataUrl, "PNG", 40, y + 8, targetWidth, targetHeight);
+      y += targetHeight + 28;
+    };
+
+    await addChartToPdf("Overall Score Chart", resultsChartRef.current);
+    await addChartToPdf("Top 3 Criteria Profile", radarChartRef.current);
+
+    if (y > 700) {
+      doc.addPage();
+      y = 40;
+    }
+
     doc.setFontSize(11);
-    doc.text("Notes", 40, finalY);
-    doc.text(notes, 40, finalY + 18, { maxWidth: 500 });
+    doc.text("Notes", 40, y);
+    doc.text(notes, 40, y + 18, { maxWidth: usableWidth });
+
     doc.save(`${studentName.toLowerCase().replace(/\s+/g, "-")}-college-decision-report.pdf`);
   }
 
@@ -952,7 +1020,7 @@ export default function CollegeDecisionWebApp() {
             </SectionCard>
 
             <SectionCard title="Overall Score Chart">
-              <div style={{ width: "100%", height: isNarrow ? 280 : 360, minHeight: 240 }}>
+              <div ref={resultsChartRef} style={{ width: "100%", height: isNarrow ? 280 : 360, minHeight: 240, background: "#ffffff" }}>
                 <ResponsiveContainerAny width="100%" height="100%">
                   <BarChartAny data={barData} margin={{ top: 8, right: isNarrow ? 8 : 16, left: isNarrow ? -20 : 0, bottom: isNarrow ? 40 : 52 }}>
                     <XAxisAny dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={isNarrow ? -12 : -20} textAnchor="end" height={isNarrow ? 60 : 70} />
@@ -965,14 +1033,21 @@ export default function CollegeDecisionWebApp() {
             </SectionCard>
 
             <SectionCard title="Top 3 Criteria Profile" subtitle="Use this to see whether the leader wins broadly or only under a narrow profile.">
-              <div style={{ width: "100%", height: isNarrow ? 320 : 400, minHeight: 260 }}>
+              <div ref={radarChartRef} style={{ width: "100%", height: isNarrow ? 320 : 400, minHeight: 260, background: "#ffffff" }}>
                 <ResponsiveContainerAny width="100%" height="100%">
                   <RadarChartAny outerRadius={isNarrow ? "56%" : "72%"} data={radarData}>
                     <PolarGridAny />
                     <PolarAngleAxisAny dataKey="criterion" tick={{ fontSize: isNarrow ? 10 : 11 }} />
                     <PolarRadiusAxisAny domain={[0, scaleMax]} />
                     {results.slice(0, 3).map((result, idx) => (
-                      <RadarAny key={result.college.id} name={result.college.name} dataKey={result.college.name} fillOpacity={0.18 + idx * 0.06} />
+                      <RadarAny
+                        key={result.college.id}
+                        name={result.college.name}
+                        dataKey={result.college.name}
+                        stroke={chartPalette[idx % chartPalette.length]}
+                        fill={chartPalette[idx % chartPalette.length]}
+                        fillOpacity={0.18 + idx * 0.06}
+                      />
                     ))}
                     <LegendAny verticalAlign="bottom" wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
                   </RadarChartAny>
