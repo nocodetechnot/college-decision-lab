@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gidana Technologies | Launching Soon</title>
-  <meta name="description" content="Gidana Technologies is launching soon." />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Gidana AI | Launching Soon</title>
+  <meta name="description" content="Agentic AI Infrastructure for Intelligent Commerce." />
   <style>
     :root {
-      --bg: #ffffff;
-      --bg-soft: #f7f7f5;
-      --gold-1: #f1d06b;
-      --gold-2: #d6aa4a;
-      --gold-3: #9b6420;
-      --text: #111827;
-      --muted: rgba(17, 24, 39, 0.72);
-      --muted-2: rgba(17, 24, 39, 0.42);
-      --terminal-bg: #ffffff;
-      --terminal-text: #d6aa4a;
+      --bg: #F8FAFC;
+      --bg-top: #FFFFFF;
+      --text: #0F172A;
+      --muted: #475569;
+      --muted-2: #64748B;
+      --border: #E2E8F0;
+      --accent: #2563EB;
+      --accent-soft: #E2E8F0;
+      --accent-soft-hover: #CBD5E1;
+      --content: 1160px;
     }
 
     * { box-sizing: border-box; }
@@ -31,10 +31,11 @@
       font-family: Arial, Helvetica, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top, rgba(214,170,74,0.12), transparent 20%),
-        radial-gradient(circle at 85% 18%, rgba(214,170,74,0.06), transparent 14%),
-        linear-gradient(180deg, #ffffff 0%, var(--bg-soft) 100%);
+        radial-gradient(circle at top, rgba(37, 99, 235, 0.05), transparent 24%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 100%);
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     body::before {
@@ -42,109 +43,230 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.035;
+      opacity: 0.03;
       background-image:
-        linear-gradient(rgba(17,24,39,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(17,24,39,0.08) 1px, transparent 1px);
-      background-size: 48px 48px;
+        linear-gradient(rgba(15, 23, 42, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.07) 1px, transparent 1px);
+      background-size: 44px 44px;
     }
 
-    .shell {
+    .page {
       position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 24px 96px;
+      width: min(100%, var(--content));
+      margin: 0 auto;
+      padding:
+        max(20px, env(safe-area-inset-top))
+        clamp(18px, 3vw, 28px)
+        calc(92px + env(safe-area-inset-bottom));
+      z-index: 1;
     }
 
-    .stage {
+    .hero {
+      min-height: calc(100svh - 24px);
+      display: grid;
+      align-items: center;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: clamp(32px, 5vw, 72px);
+      align-items: center;
       width: 100%;
-      max-width: 860px;
+      min-width: 0;
+    }
+
+    .copy {
+      min-width: 0;
+      max-width: 620px;
+    }
+
+    .launching {
+      display: inline-block;
+      margin-bottom: 18px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(38px, 6vw, 70px);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      max-width: 11ch;
+    }
+
+    .lede {
+      margin: 24px 0 0;
+      max-width: 42ch;
+      font-size: clamp(17px, 2.1vw, 20px);
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .term {
+      position: relative;
+      display: inline-block;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      background-image: linear-gradient(rgba(37, 99, 235, 0.24), rgba(37, 99, 235, 0.24));
+      background-repeat: no-repeat;
+      background-size: 100% 0.36em;
+      background-position: 0 92%;
+      padding-bottom: 0.02em;
+    }
+
+    .updates {
+      margin-top: clamp(56px, 10vh, 112px);
+      max-width: 420px;
+    }
+
+    .updates-title {
+      margin: 0 0 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .updates-actions {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .updates-note {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .tally-trigger {
+      width: 54px;
+      height: 54px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--accent-soft);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .tally-trigger:hover {
+      background: var(--accent-soft-hover);
+      border-color: #CBD5E1;
+      transform: translateY(-1px);
+    }
+
+    .tally-trigger:active {
+      transform: translateY(0);
+    }
+
+    .tally-trigger svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .visual {
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .logo-wrap {
-      width: min(100%, 420px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: min(100%, 460px);
     }
 
     .logo {
+      display: block;
       width: 100%;
       height: auto;
-      display: block;
-      filter: none;/*drop-shadow(0 10px 34px rgba(155,100,32,0.16)); */
+      overflow: visible;
     }
 
-    .eyebrow {
-      margin-top: 20px;
-      color: rgba(155,100,32,0.86);
-      font-size: 13px;
-      letter-spacing: 0.32em;
-      text-transform: uppercase;
+    .logo .network-lines path {
+      stroke-dasharray: 880;
+      stroke-dashoffset: 880;
+      animation: drawPath 1.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    .terminal {
-      margin-top: 18px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      background: var(--terminal-bg);
-      color: var(--terminal-text);
-      font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 14px;
-      line-height: 1.4;
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-      border: 1px solid rgba(214,170,74,0.18);
+    .logo .node {
+      opacity: 0;
+      transform: scale(0.84);
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: nodeIn 0.34s ease forwards;
     }
 
-    .prompt {
-      color: rgba(214,170,74,0.75);
-      user-select: none;
+    .logo .node.outer:nth-of-type(1) { animation-delay: 0.95s; }
+    .logo .node.outer:nth-of-type(2) { animation-delay: 1.02s; }
+    .logo .node.outer:nth-of-type(3) { animation-delay: 1.08s; }
+    .logo .node.outer:nth-of-type(4) { animation-delay: 1.14s; }
+    .logo .node.outer:nth-of-type(5) { animation-delay: 1.20s; }
+    .logo .node.outer:nth-of-type(6) { animation-delay: 1.26s; }
+    .logo .node.inner:nth-of-type(7) { animation-delay: 1.32s; }
+    .logo .node.inner:nth-of-type(8) { animation-delay: 1.38s; }
+    .logo .node.inner:nth-of-type(9) { animation-delay: 1.44s; }
+    .logo .node.inner:nth-of-type(10) { animation-delay: 1.50s; }
+    .logo .node.inner:nth-of-type(11) { animation-delay: 1.56s; }
+    .logo .node.inner:nth-of-type(12) { animation-delay: 1.62s; }
+    .logo .node.inner:nth-of-type(13) { animation-delay: 1.68s; }
+    .logo .node.inner:nth-of-type(14) { animation-delay: 1.74s; }
+    .logo .node.inner:nth-of-type(15) { animation-delay: 1.80s; }
+
+    .logo .node.active {
+      filter: drop-shadow(0 0 3px rgba(37, 99, 235, 0.25));
+      animation:
+        nodeIn 0.34s ease forwards,
+        nodePulse 5.2s ease-in-out infinite;
     }
 
-    .type-line {
-      display: inline-flex;
-      align-items: center;
-      min-height: 20px;
+    .logo .node.active.a1 { animation-delay: 0.95s, 2.2s; }
+    .logo .node.active.a2 { animation-delay: 1.02s, 2.8s; }
+    .logo .node.active.a3 { animation-delay: 1.08s, 3.3s; }
+    .logo .node.active.a4 { animation-delay: 1.14s, 3.9s; }
+    .logo .node.active.a5 { animation-delay: 1.20s, 4.4s; }
+    .logo .node.active.a6 { animation-delay: 1.26s, 5.0s; }
+    .logo .node.active.a7 { animation-delay: 1.32s, 5.6s; }
+    .logo .node.active.a8 { animation-delay: 1.38s, 6.1s; }
+    .logo .node.active.a9 { animation-delay: 1.44s, 6.7s; }
+    .logo .node.active.a10 { animation-delay: 1.50s, 7.2s; }
+
+    .logo .flow {
+      stroke: #2563EB;
+      stroke-width: 6;
+      stroke-dasharray: 22 160;
+      stroke-dashoffset: 120;
+      opacity: 0;
+      filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.25));
+      animation: flowMove 4.2s linear infinite;
     }
 
-    .typed-text {
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      animation: typing 3.2s steps(16, end) infinite alternate;
-    }
-
-    .cursor {
-      display: inline-block;
-      width: 9px;
-      margin-left: 2px;
-      color: var(--terminal-text);
-      animation: blink 1s steps(1, end) infinite;
-    }
-
-    p {
-      margin: 18px auto 0;
-      max-width: 520px;
-      font-size: clamp(15px, 2vw, 18px);
-      line-height: 1.8;
-      color: var(--muted);
-    }
+    .logo .flow.f1 { animation-delay: 1.6s; }
+    .logo .flow.f2 { animation-delay: 2.2s; }
+    .logo .flow.f3 { animation-delay: 2.8s; }
+    .logo .flow.f4 { animation-delay: 3.4s; }
+    .logo .flow.f5 { animation-delay: 4.0s; }
+    .logo .flow.f6 { animation-delay: 4.6s; }
+    .logo .flow.f7 { animation-delay: 5.2s; }
+    .logo .flow.f8 { animation-delay: 5.8s; }
 
     .footer-fixed {
       position: fixed;
       left: 0;
       right: 0;
-      bottom: 18px;
+      bottom: calc(14px + env(safe-area-inset-bottom));
       display: flex;
       justify-content: center;
       pointer-events: none;
@@ -152,96 +274,228 @@
     }
 
     .footer-fixed span {
-      font-size: 12px;
-      letter-spacing: 0.14em;
+      padding: 0 12px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--muted-2);
-      padding: 0 12px;
     }
 
-    @keyframes typing {
-      0% { width: 0; }
-      55% { width: 16ch; }
-      100% { width: 16ch; }
+    @keyframes drawPath {
+      to { stroke-dashoffset: 0; }
     }
 
-    @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
+    @keyframes nodeIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes flowMove {
+      0% {
+        opacity: 0;
+        stroke-dashoffset: 120;
+      }
+      10% {
+        opacity: 0.35;
+      }
+      55% {
+        opacity: 0.45;
+      }
+      100% {
+        opacity: 0;
+        stroke-dashoffset: -220;
+      }
+    }
+
+    @keyframes nodePulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.12);
+      }
+    }
+
+    @media (max-width: 920px) {
+      .hero {
+        min-height: auto;
+        padding-top: 12px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 26px;
+      }
+
+      .copy {
+        max-width: 100%;
+        order: 2;
+        text-align: left;
+      }
+
+      .visual {
+        order: 1;
+      }
+
+      .logo-wrap {
+        width: min(100%, 360px);
+      }
+
+      h1 {
+        max-width: 12ch;
+      }
+
+      .updates {
+        margin-top: 42px;
+      }
     }
 
     @media (max-width: 640px) {
-      .shell { padding: 16px 16px 84px; }
-      .logo-wrap { width: min(100%, 300px); }
-      .eyebrow { letter-spacing: 0.22em; }
-      .terminal {
-        width: 100%;
-        justify-content: center;
-        font-size: 13px;
+      .page {
+        padding-left: 16px;
+        padding-right: 16px;
       }
-      .footer-fixed { bottom: 12px; }
-      .footer-fixed span { font-size: 11px; }
+
+      .updates-actions {
+        align-items: center;
+      }
+
+      .footer-fixed span {
+        font-size: 10px;
+        letter-spacing: 0.10em;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .logo .network-lines path,
+      .logo .node,
+      .logo .flow,
+      .tally-trigger {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .logo .network-lines path {
+        stroke-dashoffset: 0;
+      }
+
+      .logo .node {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .logo .flow {
+        display: none;
+      }
     }
   </style>
+
+  <!-- Replace the placeholder values below with your real Tally popup code -->
+  <script async src="https://tally.so/widgets/embed.js"></script>
 </head>
 <body>
-  <main class="shell">
-    <section class="stage" aria-label="Gidana Technologies Launching Soon">
-      <div class="logo-wrap">
-        <svg viewBox="0 0 360 400" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Gidana logo mark">
-          <defs>
-            <linearGradient id="gidanaGold" x1="18" y1="24" x2="328" y2="360" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#F1D06B" />
-              <stop offset="0.55" stop-color="#D6AA4A" />
-              <stop offset="1" stop-color="#9B6420" />
-            </linearGradient>
-          </defs>
+  <main class="page">
+    <section class="hero" aria-label="Gidana AI launching soon">
+      <div class="hero-grid">
+        <div class="copy">
+          <div class="launching">Launching soon</div>
 
-          <g stroke="url(#gidanaGold)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 113 L95 71 L180 22 L275 71 L340 113" />
-            <path d="M340 113 L340 287 L246 342 L180 378 L20 287 L20 113" />
-            <path d="M95 71 L95 245" />
-            <path d="M95 154 L180 106 L275 71" />
-            <path d="M95 245 L180 294 L246 256" />
-            <path d="M246 154 L246 342" />
-            <path d="M246 154 L340 205" />
-            <path d="M180 200 L246 154" />
-          </g>
+          <h1>Agentic AI Infrastructure for Intelligent Commerce</h1>
 
-          <g fill="url(#gidanaGold)">
-            <circle cx="20" cy="113" r="14" />
-            <circle cx="95" cy="71" r="14" />
-            <circle cx="180" cy="22" r="14" />
-            <circle cx="275" cy="71" r="14" />
-            <circle cx="340" cy="113" r="14" />
-            <circle cx="95" cy="154" r="14" />
-            <circle cx="180" cy="106" r="14" />
-            <circle cx="180" cy="200" r="14" />
-            <circle cx="246" cy="154" r="14" />
-            <circle cx="95" cy="245" r="14" />
-            <circle cx="180" cy="294" r="14" />
-            <circle cx="246" cy="256" r="14" />
-            <circle cx="20" cy="287" r="14" />
-            <circle cx="180" cy="378" r="14" />
-            <circle cx="340" cy="287" r="14" />
-          </g>
-        </svg>
+          <p class="lede">
+            AI-native platform infrastructure for
+            <span class="term">autonomous workflows</span>,
+            <span class="term">integrated intelligence</span>,
+            and <span class="term">commerce systems</span>.
+          </p>
+
+          <div class="updates" aria-label="Launch updates">
+            <p class="updates-title">Launch updates</p>
+            <div class="updates-actions">
+              <button
+                class="tally-trigger"
+                type="button"
+                aria-label="Request launch updates"
+                data-tally-open="xX0XAG"
+                data-tally-layout="modal"
+                data-tally-width="520"
+                data-tally-overlay="1"
+                data-tally-emoji-animation="wave"
+                data-tally-auto-close="0"
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 17 17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+
+              <p class="updates-note">Request launch updates</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="visual">
+          <div class="logo-wrap">
+            <svg
+              class="logo"
+              viewBox="0 0 360 400"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-label="Gidana logo mark"
+              role="img"
+            >
+              <g class="network-lines" stroke="#0F172A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 113 L95 71 L180 22 L275 71 L340 113" />
+                <path d="M340 113 L340 287 L246 342 L180 378 L20 287 L20 113" />
+                <path d="M95 71 L95 245" />
+                <path d="M95 154 L180 106 L275 71" />
+                <path d="M95 245 L180 294 L246 256" />
+                <path d="M246 154 L246 342" />
+                <path d="M246 154 L340 205" />
+                <path d="M180 200 L246 154" />
+              </g>
+
+              <g class="flow-layer" stroke="#2563EB" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+                <path class="flow f1" d="M20 113 L95 71 L180 22 L275 71 L340 113" />
+                <path class="flow f2" d="M340 113 L340 287 L246 342 L180 378 L20 287 L20 113" />
+                <path class="flow f3" d="M95 71 L95 245" />
+                <path class="flow f4" d="M95 154 L180 106 L275 71" />
+                <path class="flow f5" d="M95 245 L180 294 L246 256" />
+                <path class="flow f6" d="M246 154 L246 342" />
+                <path class="flow f7" d="M246 154 L340 205" />
+                <path class="flow f8" d="M180 200 L246 154" />
+              </g>
+
+              <g fill="#0F172A">
+                <circle class="node outer active a1" cx="20" cy="113" r="16" />
+                <circle class="node outer active a2" cx="95" cy="71" r="16" />
+                <circle class="node outer active a3" cx="180" cy="22" r="16" />
+                <circle class="node outer active a4" cx="275" cy="71" r="16" />
+                <circle class="node outer active a5" cx="340" cy="113" r="16" />
+                <circle class="node outer active a6" cx="20" cy="287" r="16" />
+                <circle class="node inner active a7" cx="95" cy="154" r="14" />
+                <circle class="node inner active a8" cx="180" cy="106" r="14" />
+                <circle class="node inner" cx="180" cy="200" r="14" />
+                <circle class="node inner active a9" cx="246" cy="154" r="14" />
+                <circle class="node inner active a10" cx="95" cy="245" r="14" />
+                <circle class="node inner" cx="180" cy="294" r="14" />
+                <circle class="node inner active a4" cx="246" cy="256" r="14" />
+                <circle class="node inner active a6" cx="180" cy="378" r="16" />
+                <circle class="node inner active a8" cx="340" cy="287" r="16" />
+              </g>
+            </svg>
+          </div>
+        </div>
       </div>
-
-      <div class="eyebrow">Launching Soon</div>
-      <!--
-      <div class="terminal" aria-label="building quietly animation">
-        <span class="prompt">&gt;</span>
-        <span class="type-line">
-          <span class="typed-text">building quietly</span><span class="cursor">_</span>
-        </span>
-      </div>
-      -->
     </section>
   </main>
 
   <div class="footer-fixed">
-    <span>© Gidana Technologies 2026</span>
+    <span>© Gidana AI 2026</span>
   </div>
 </body>
 </html>
