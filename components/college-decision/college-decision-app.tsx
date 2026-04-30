@@ -49,7 +49,7 @@ type College = {
 
 type Scores = Record<string, Record<string, number | "">>;
 
-type ScenarioKey = "policy" | "econ" | "mba" | "custom";
+type ScenarioKey = "minor" | "major" | "mba" | "custom";
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -169,8 +169,8 @@ const initialColleges: College[] = [
 
 const initialCriteria: Criterion[] = [
   { id: uid(), name: "Academic Fit", description: "How well the school matches your academic interests and learning style.", weight: 10 },
-  { id: uid(), name: "Economics Strength", description: "Depth, rigor, and quality of economics training.", weight: 9 },
-  { id: uid(), name: "International Policy Strength", description: "Access to policy, global affairs, and international systems coursework.", weight: 10 },
+  { id: uid(), name: "Minor Strength", description: "Access to coursework in minor area.", weight: 10 },
+  { id: uid(), name: "Major Strength", description: "Depth, rigor, and quality of specialized training.", weight: 9 },
   { id: uid(), name: "Internship Access", description: "Ease of getting meaningful internships during school.", weight: 9 },
   { id: uid(), name: "Career Outcomes", description: "Placement strength for jobs, grad school, and long-term trajectory.", weight: 8 },
   { id: uid(), name: "Cost and Aid", description: "Overall affordability after aid and scholarships.", weight: 8 },
@@ -179,20 +179,20 @@ const initialCriteria: Criterion[] = [
 ];
 
 const scenarioTemplates: Record<Exclude<ScenarioKey, "custom">, Record<string, number>> = {
-  policy: {
+  minor: {
     "Academic Fit": 9,
-    "Economics Strength": 8,
-    "International Policy Strength": 10,
+    "Major Strength": 8,
+    "Minor Strength": 10,
     "Internship Access": 10,
     "Career Outcomes": 8,
     "Cost and Aid": 7,
     "Campus and City Fit": 7,
     Flexibility: 6,
   },
-  econ: {
+  Major: {
     "Academic Fit": 9,
-    "Economics Strength": 10,
-    "International Policy Strength": 4,
+    "Major Strength": 10,
+    "Minor Strength": 4,
     "Internship Access": 5,
     "Career Outcomes": 8,
     "Cost and Aid": 7,
@@ -201,8 +201,8 @@ const scenarioTemplates: Record<Exclude<ScenarioKey, "custom">, Record<string, n
   },
   mba: {
     "Academic Fit": 8,
-    "Economics Strength": 9,
-    "International Policy Strength": 5,
+    "Major Strength": 9,
+    "Minor Strength": 5,
     "Internship Access": 8,
     "Career Outcomes": 10,
     "Cost and Aid": 8,
@@ -274,9 +274,9 @@ function ProgressBar({ value }: { value: number }) {
 function ScenarioSelect({ value, onChange }: { value: ScenarioKey; onChange: (v: ScenarioKey) => void }) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value as ScenarioKey)} style={selectStyle}>
-      <option style={{ color: "#0f172a", background: "#ffffff" }} value="policy">Policy Focus</option>
-      <option style={{ color: "#0f172a", background: "#ffffff" }} value="econ">Wonky Economics</option>
-      <option style={{ color: "#0f172a", background: "#ffffff" }} value="mba">Economics then MBA</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="minor">Minor Focus</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="Major">Major Focus</option>
+      <option style={{ color: "#0f172a", background: "#ffffff" }} value="mba">Major and then MBA</option>
       <option style={{ color: "#0f172a", background: "#ffffff" }} value="custom">Custom</option>
     </select>
   );
@@ -356,9 +356,9 @@ export default function CollegeDecisionWebApp() {
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1280);
   const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
   const [scenario, setScenario] = useState<ScenarioKey>("policy");
-  const [studentName, setStudentName] = useState("Anjola");
+  const [studentName, setStudentName] = useState("Name");
   const [decisionGoal, setDecisionGoal] = useState(
-    "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
+    "Choose the best undergraduate environment for your major studies, minor studies, or a flexible path into future graduate study."
   );
   const [scoreScale, setScoreScale] = useState("10");
   const [colleges, setColleges] = useState<College[]>(initialColleges);
@@ -383,10 +383,10 @@ export default function CollegeDecisionWebApp() {
       try {
         const parsed = JSON.parse(saved);
         setScenario(parsed.scenario ?? "policy");
-        setStudentName(parsed.studentName ?? "Anjola");
+        setStudentName(parsed.studentName ?? "Name");
         setDecisionGoal(
           parsed.decisionGoal ??
-            "Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study."
+            "Choose the best undergraduate environment for your major, minor, or a flexible path into future graduate study."
         );
         setScoreScale(parsed.scoreScale ?? "10");
         setColleges(parsed.colleges ?? initialColleges);
@@ -555,8 +555,8 @@ export default function CollegeDecisionWebApp() {
 
   function resetAll() {
     setScenario("policy");
-    setStudentName("Anjola");
-    setDecisionGoal("Choose the best undergraduate environment for economics, international policy, or a flexible path into future graduate study.");
+    setStudentName("Name");
+    setDecisionGoal("Choose the best undergraduate environment for major studies, minor studies, or a flexible path into future graduate study.");
     setScoreScale("10");
     setColleges(initialColleges);
     setCriteria(initialCriteria);
@@ -766,7 +766,7 @@ export default function CollegeDecisionWebApp() {
 
         {activeTab === "weights" && (
           <div style={{ display: "grid", gap: 24, gridTemplateColumns: "1fr" }}>
-            <SectionCard title="Teaching Panel" subtitle="This section explains the model so the user learns while deciding.">
+            <SectionCard title="Teaching Panel" subtitle="This section explains the model so you can learn while deciding.">
               <div style={{ display: "grid", gap: 12 }}>
                 {teachingTips.map((tip, idx) => (
                   <details key={idx} style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 12, background: "#fff" }}>
