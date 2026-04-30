@@ -189,7 +189,7 @@ const scenarioTemplates: Record<Exclude<ScenarioKey, "custom">, Record<string, n
     "Campus and City Fit": 7,
     Flexibility: 6,
   },
-  Major: {
+  major: {
     "Academic Fit": 9,
     "Major Strength": 10,
     "Minor Strength": 4,
@@ -355,7 +355,7 @@ function ScoreMatrixMobileCard({
 export default function CollegeDecisionWebApp() {
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1280);
   const [activeTab, setActiveTab] = useState<"weights" | "scores" | "results" | "notes">("weights");
-  const [scenario, setScenario] = useState<ScenarioKey>("policy");
+  const [scenario, setScenario] = useState<ScenarioKey>("minor");
   const [studentName, setStudentName] = useState("Name");
   const [decisionGoal, setDecisionGoal] = useState(
     "Choose the best undergraduate environment for your major studies, minor studies, or a flexible path into future graduate study."
@@ -382,7 +382,7 @@ export default function CollegeDecisionWebApp() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setScenario(parsed.scenario ?? "policy");
+        setScenario(parsed.scenario ?? "minor");
         setStudentName(parsed.studentName ?? "Name");
         setDecisionGoal(
           parsed.decisionGoal ??
@@ -554,7 +554,7 @@ export default function CollegeDecisionWebApp() {
   }
 
   function resetAll() {
-    setScenario("policy");
+    setScenario("minor");
     setStudentName("Name");
     setDecisionGoal("Choose the best undergraduate environment for major studies, minor studies, or a flexible path into future graduate study.");
     setScoreScale("10");
